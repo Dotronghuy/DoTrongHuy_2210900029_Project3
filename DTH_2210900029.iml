@@ -36,5 +36,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.7.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-engine:1.7.0" level="project" />
     <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre16" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20210307" level="project" />
   </component>
 </module>

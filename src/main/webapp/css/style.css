@@ -1561,3 +1561,7 @@ tr:hover {
 .btn_delete i {
     color: #dc3545;
 }
+
+.handle_admin{
+   display: block !important;
+}

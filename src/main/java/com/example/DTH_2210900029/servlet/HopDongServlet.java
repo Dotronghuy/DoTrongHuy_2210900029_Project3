@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +20,15 @@ import java.util.ArrayList;
 public class HopDongServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        String vaiTro = (String) request.getSession().getAttribute("vaiTro");
+
+        if (vaiTro == null || (!"Admin".equals(vaiTro) )) {
+            response.sendRedirect("403.jsp?error=1");
+            return;
+        }
+
+
         String action = request.getParameter("action");
         if (action == null) action = "list";
 
@@ -66,22 +76,31 @@ public class HopDongServlet extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         HopDong hopDong = null;
 
-        try {
-            Connection conn = DBConnection.getConnection();
-            String sql = "SELECT * FROM DTH_2210900029_HopDong WHERE ID=?";
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM DTH_2210900029_HopDong WHERE DTH_2210900029_ID_HopDong=?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
-                hopDong = new HopDong(rs.getInt("ID"), rs.getInt("IDNhanVien"), rs.getDate("NgayBatDau"),
-                        rs.getDate("NgayKetThuc"), rs.getString("LoaiHopDong"));
+                hopDong = new HopDong(
+                        rs.getInt("DTH_2210900029_ID_HopDong"),
+                        rs.getInt("DTH_2210900029_ID_NV"),
+                        rs.getDate("DTH_2210900029_NgayBatDau"),
+                        rs.getDate("DTH_2210900029_NgayKetThuc"),
+                        rs.getString("DTH_2210900029_LoaiHopDong")
+                );
             }
-            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        request.setAttribute("hopDong", hopDong);
-        request.getRequestDispatcher("hopDong_form.jsp").forward(request, response);
+
+        if (hopDong != null) {
+            request.setAttribute("hopDong", hopDong);
+            request.getRequestDispatcher("hopDong.jsp").forward(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy hợp đồng");
+        }
     }
 
     private void deleteHopDong(HttpServletRequest request, HttpServletResponse response)
@@ -106,31 +125,32 @@ public class HopDongServlet extends HttpServlet {
         int idNhanVien = Integer.parseInt(request.getParameter("idNhanVien"));
         String ngayBatDauStr = request.getParameter("ngayBatDau");
         String ngayKetThucStr = request.getParameter("ngayKetThuc");
-        String loaiHopDong = request.getParameter("loaiHopDong");
 
-        try {
-            Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection()) {
             String sql;
             if (id == 0) {
-                sql = "INSERT INTO DTH_2210900029_HopDong (IDNhanVien, NgayBatDau, NgayKetThuc, LoaiHopDong) VALUES (?, ?, ?, ?)";
+                sql = "INSERT INTO DTH_2210900029_HopDong " +
+                        "(DTH_2210900029_ID_NV, DTH_2210900029_NgayBatDau, DTH_2210900029_NgayKetThuc) " +
+                        "VALUES (?, ?, ?)";
             } else {
-                sql = "UPDATE DTH_2210900029_HopDong SET IDNhanVien=?, NgayBatDau=?, NgayKetThuc=?, LoaiHopDong=? WHERE ID=?";
+                sql = "UPDATE DTH_2210900029_HopDong SET " +
+                        "DTH_2210900029_ID_NV=?, DTH_2210900029_NgayBatDau=?, DTH_2210900029_NgayKetThuc=? " +
+                        "WHERE DTH_2210900029_ID_HopDong=?";
             }
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idNhanVien);
-            stmt.setString(2, ngayBatDauStr);
-            stmt.setString(3, ngayKetThucStr);
-            stmt.setString(4, loaiHopDong);
-            if (id != 0) stmt.setInt(5, id);
-            stmt.executeUpdate();
-            conn.close();
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, idNhanVien);
+                stmt.setString(2, ngayBatDauStr);
+                stmt.setString(3, ngayKetThucStr);
+                if (id != 0) stmt.setInt(4, id);
+                stmt.executeUpdate();
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Có lỗi xảy ra trong quá trình xử lý yêu cầu.");
         }
-        response.sendRedirect("HopDongServlet");
-    }
 
-    private class List<T> {
+        response.sendRedirect("HopDongServlet");
     }
 }
 

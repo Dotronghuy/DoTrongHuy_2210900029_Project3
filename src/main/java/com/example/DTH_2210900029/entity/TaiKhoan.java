@@ -5,6 +5,7 @@ public class TaiKhoan {
     private String password;
     private String vaiTro;
 
+
     public TaiKhoan(String user, String password, String vaiTro) {
         this.user = user;
         this.password = password;

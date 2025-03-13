@@ -19,31 +19,41 @@ public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Lấy thông tin đăng nhập từ form
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        try {
-            Connection conn = DBConnection.getConnection();
-            String sql = "SELECT * FROM DTH_2210900029_TaiKhoan WHERE DTH_2210900029_TenDangNhap = ? AND DTH_2210900029_MatKhau = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM DTH_2210900029_TaiKhoan WHERE DTH_2210900029_TenDangNhap = ? AND DTH_2210900029_MatKhau = ?")) {
+
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Nếu tìm thấy user, tạo session và chuyển hướng
-                HttpSession session = request.getSession();
-                session.setAttribute("username", username);
-                response.sendRedirect("CongViecServlet");
-            } else {
-                // Nếu đăng nhập sai, chuyển về login.jsp với thông báo lỗi
-                response.sendRedirect("login.jsp?error=1");
-            }
+                int idNhanVien = rs.getInt("DTH_2210900029_ID_NV");
+                String vaiTro = rs.getString("DTH_2210900029_VaiTro");
 
+                HttpSession session = request.getSession();
+                System.out.println("ID Nhân viên từ DB: " + idNhanVien);
+                session.setAttribute("idNhanVien", idNhanVien);
+                session.setAttribute("username", username);
+                session.setAttribute("vaiTro", vaiTro);
+
+                if ("Admin".equals(vaiTro)) {
+                    response.sendRedirect("NhanVienServlet");
+                } else if ("Nhân viên".equals(vaiTro)) {
+                    response.sendRedirect("ChamCongServlet");
+                } else {
+                    response.sendRedirect("403.jsp?error=3");
+                }
+            } else {
+                response.sendRedirect("403.jsp?error=1");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("login.jsp?error=2"); // Lỗi hệ thống
+            response.sendRedirect("403.jsp?error=2");
         }
     }
+
 }

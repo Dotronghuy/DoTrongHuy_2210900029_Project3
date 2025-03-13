@@ -19,7 +19,6 @@ public class CongViec {
         this.trangThai = trangThai;
     }
 
-    // Getter và Setter
     public int getId() { return id; }
     public String getTenCongViec() { return tenCongViec; }
     public String getMoTa() { return moTa; }
@@ -27,7 +26,6 @@ public class CongViec {
     public Date getHanHoanThanh() { return hanHoanThanh; }
     public String getTrangThai() { return trangThai; }
 
-    // Hàm để lấy class CSS theo trạng thái
     public String getTrangThaiCss() {
         switch (trangThai.toLowerCase()) {
             case "đang thực hiện": return "in-progress";
