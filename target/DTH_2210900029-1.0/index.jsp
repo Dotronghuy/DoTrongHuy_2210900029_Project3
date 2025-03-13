@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng nhập</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
         *
@@ -14,13 +14,43 @@
             box-sizing: border-box;
             font-family: 'Quicksand', sans-serif;
         }
-        body
-        {
+        body {
             display: flex;
-            justify-content: center;section .signin .content .form .inputBox
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: #fff;
+            background: #181818;
+            overflow: hidden;
+        }
+
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 1px;
+            z-index: 1;
+        }
+
+        .grid-background div {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .grid-background div:hover {
+            background: rgba(0, 255, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        .signin {
+            position: absolute;
+            z-index: 10;
         }
         section
         {
